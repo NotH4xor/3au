@@ -1,3 +1,8 @@
+--[[
+Pros: Fast Jumpshot, Best Accuracy
+
+Cons: Can't make MovingShots
+]]
 local plr, uis, rs, cg = game.Players.LocalPlayer, game:GetService("UserInputService"), game:GetService("RunService"), game:GetService("CoreGui")
 local hasBall, readyToShoot, toggleOn, CurrentMessage, NotifyGui = false, false, true, nil, nil
 

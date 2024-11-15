@@ -1,3 +1,9 @@
+--[[
+Pros: You Can Make Moving Shots
+
+Cons: Slow Shot, Bad Accuracy
+
+]]
 local a, b = game.Players.LocalPlayer, game:GetService("RunService")
 local c = a:WaitForChild("PlayerGui", 9e9).Power.PowerFrame.Power
 local d = a.Character.E_V.AddPower
