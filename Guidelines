@@ -1,0 +1,44 @@
+local function createRingAroundGoal(goal, radius, segments, heightFromGoal, thickness, color)
+local parts = {}
+local arcLength = (2 * math.pi * radius) / segments
+
+for i = 1, segments do
+local part = Instance.new("Part")
+part.Size = Vector3.new(arcLength, thickness, 0.2)
+part.Anchored = true
+part.CanCollide = false
+part.Transparency = 0.3
+part.BrickColor = BrickColor.new(color)
+part.Parent = workspace
+
+local angle = (i / segments) * (2 * math.pi)
+part.Position = goal.Position + Vector3.new(radius * math.cos(angle), heightFromGoal, radius * math.sin(angle))
+part.Orientation = Vector3.new(0, -math.deg(angle), 0)
+table.insert(parts, part)
+end
+
+return parts
+end
+
+local function findAndEncircleGoals(goalName, ringProperties)
+for _, goal in pairs(game.Workspace:GetDescendants()) do
+if goal.Name == goalName and goal:IsA('Part') then
+for _, props in ipairs(ringProperties) do
+createRingAroundGoal(goal, props[1], props[2], props[3], props[4], props[5])
+end
+end
+end
+end
+
+-- goal name to encircle
+local goalName = 'Lol'
+
+-- custom ring properties for each circle: {radius, segments, heightFromGoal, thickness, color}
+local ringProperties = {
+{55, 1600, -17, 0.3, "Bright red"},
+{62, 1600, -17, 0.3, "Bright red"},
+{68.20, 1600, -17, 0.3, "Bright red"},
+-- add more configurations as needed
+}
+
+findAndEncircleGoals(goalName, ringProperties)
