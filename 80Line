@@ -1,0 +1,103 @@
+local a = {}
+local b = {}
+
+local beamColor = Color3.fromRGB(255, 0, 255)  -- customizable color variable (RGB values)
+local transparency = 0  -- customizable transparency variable
+
+local function c()
+    if #a > 0 then
+        return table.remove(a)
+    else
+        local d = Instance.new("Attachment")
+        return d
+    end
+end
+
+local function e(f)
+    if #b > 0 then
+        local g = table.remove(b)
+        g.Enabled = true
+        g.Width0 = f
+        g.Width1 = f
+        return g
+    else
+        local g = Instance.new("Beam")
+        g.Width0 = f
+        g.Width1 = f
+        g.FaceCamera = true
+        g.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, beamColor),
+            ColorSequenceKeypoint.new(1, beamColor)
+        })  -- using customizable color
+        g.Transparency = NumberSequence.new(transparency)  -- using customizable transparency
+        return g
+    end
+end
+
+local function h(i, j, k, f)
+    local l = Instance.new("Model")
+    l.Name = "Ring"
+    l.Parent = workspace
+
+    local m = Instance.new("Part")
+    m.Size = Vector3.new(1, 1, 1)
+    m.Anchored = true
+    m.CanCollide = false
+    m.Transparency = 1
+    m.Position = i.Position + Vector3.new(0, k, 0)
+    m.Parent = l
+
+    local n = {}
+    local o = 360 / 2
+    for p = 0, 360, 2 do
+        local q = math.rad(p)
+        local r = j * math.cos(q)
+        local s = j * math.sin(q)
+        local d = c()
+        d.Position = Vector3.new(r, 0, s)
+        d.Parent = m
+        table.insert(n, d)
+    end
+
+    for t = 1, #n do
+        local u = t == #n and 1 or t + 1
+        local g = e(f)
+        g.Attachment0 = n[t]
+        g.Attachment1 = n[u]
+        g.Parent = m
+    end
+
+    return l
+end
+
+local function v(j, k, f)
+    local w = {}
+    for x, i in pairs(workspace:GetDescendants()) do
+        if i.Name == 'Lol' and i:IsA('Part') then
+            table.insert(w, i)
+        end
+    end
+    for x, i in pairs(w) do
+        h(i, j, k, f)
+    end
+end
+
+local function y()
+    for x, g in pairs(workspace:GetDescendants()) do
+        if g:IsA("Beam") and g.Enabled == false then
+            table.insert(b, g)
+        end
+    end
+    for x, d in pairs(workspace:GetDescendants()) do
+        if d:IsA("Attachment") and not d.Parent:IsDescendantOf(workspace) then
+            table.insert(a, d)
+        end
+    end
+end
+
+local j = 62
+local k = -17
+local f = 0.7
+
+v(j, k, f)
+y()
