@@ -1,0 +1,98 @@
+local attachmentPool = {}
+local beamPool = {}
+
+local function getPooledAttachment()
+if #attachmentPool > 0 then
+return table.remove(attachmentPool)
+else
+local attachment = Instance.new("Attachment")
+return attachment
+end
+end
+
+local function getPooledBeam()
+if #beamPool > 0 then
+local beam = table.remove(beamPool)
+beam.Enabled = true
+return beam
+else
+local beam = Instance.new("Beam")
+beam.Width0 = 0.2 -- reduced thickness
+beam.Width1 = 0.2 -- reduced thickness
+beam.FaceCamera = true
+beam.Color = ColorSequence.new(BrickColor.new("Bright yellow").Color)
+beam.Transparency = NumberSequence.new(0)
+return beam
+end
+end
+
+local function createRingAroundGoal(goal, radius, heightFromGoal)
+local ringModel = Instance.new("Model")
+ringModel.Name = "Ring"
+ringModel.Parent = workspace
+
+local part = Instance.new("Part")
+part.Size = Vector3.new(1, 1, 1)
+part.Anchored = true
+part.CanCollide = false
+part.Transparency = 1
+part.Position = goal.Position + Vector3.new(0, heightFromGoal, 0)
+part.Parent = ringModel
+
+local attachments = {}
+local segments = 360 / 2 -- increased segments for better roundness
+for angle = 0, 360, 2 do
+local rad = math.rad(angle)
+local x = radius * math.cos(rad)
+local z = radius * math.sin(rad)
+
+local attachment = getPooledAttachment()
+attachment.Position = Vector3.new(x, 0, z)
+attachment.Parent = part
+table.insert(attachments, attachment)
+end
+
+for i = 1, #attachments do
+local nextIndex = (i == #attachments) and 1 or i + 1
+local beam = getPooledBeam()
+beam.Attachment0 = attachments[i]
+beam.Attachment1 = attachments[nextIndex]
+beam.Parent = part
+end
+
+return ringModel
+end
+
+local function findAndEncircleGoals(radius, heightFromGoal)
+local goals = {}
+
+for _, goal in pairs(workspace:GetDescendants()) do
+if goal.Name == 'Lol' and goal:IsA('Part') then
+table.insert(goals, goal)
+end
+end
+
+for _, goal in pairs(goals) do
+createRingAroundGoal(goal, radius, heightFromGoal)
+end
+end
+
+local function cleanupPooledInstances()
+for _, beam in pairs(workspace:GetDescendants()) do
+if beam:IsA("Beam") and beam.Enabled == false then
+table.insert(beamPool, beam)
+end
+end
+
+for _, attachment in pairs(workspace:GetDescendants()) do
+if attachment:IsA("Attachment") and not attachment.Parent:IsDescendantOf(workspace) then
+table.insert(attachmentPool, attachment)
+end
+end
+end
+
+local radius = 55
+local heightFromGoal = -17
+
+findAndEncircleGoals(radius, heightFromGoal)
+cleanupPooledInstances()
