@@ -1,0 +1,112 @@
+local player, runService = game.Players.LocalPlayer, game:GetService("RunService")
+local powerGui = player:WaitForChild("PlayerGui", 9e9).Power.PowerFrame.Power
+local addPower = player.Character.E_V.AddPower
+local powerLevel, targets, recentTarget = "75", {}, nil
+
+for _, desc in ipairs(workspace:GetDescendants()) do
+if desc:IsA("BasePart") and desc.Name == "Lol" and desc.Parent.Name == "Rim" then
+targets[#targets+1] = desc
+end
+end
+
+local lastUpdate = tick()
+local function getClosestTarget()
+if tick() - lastUpdate > 0.5 then -- cache result for half a second
+local closest, closestDist = nil, math.huge
+local torsoPos = player.Character.Torso.Position
+
+for _, target in ipairs(targets) do
+local dist = (torsoPos - target.Position).Magnitude
+if dist < closestDist then
+closest, closestDist = target, dist
+end
+end
+
+recentTarget = closest
+lastUpdate = tick()
+end
+return recentTarget
+end
+
+local function calculateOffset(dist)
+local offsetConfig = { ["75"]=5.61, ["80"]=4.22, ["85"]=5.64, ["90"]=5.05 }
+return Vector3.new(0, 43 + math.clamp(dist / 15, offsetConfig[powerLevel] - 0.05, offsetConfig[powerLevel]), 0)
+end
+
+local lastMoveDirUpdate = tick()
+local cachedMoveDir = Vector3.new()
+local function calculatePosition(target)
+if tick() - lastMoveDirUpdate > 0.1 then -- update move direction less frequently
+cachedMoveDir = Vector3.new(player.Character.Humanoid.MoveDirection.X * 1.5, 0, player.Character.Humanoid.MoveDirection.Z * 1.5)
+lastMoveDirUpdate = tick()
+end
+
+local targetDist = (player.Character.Torso.Position - target.Position).Magnitude
+return target.Position + calculateOffset(targetDist) - cachedMoveDir
+end
+
+local function shoot()
+local basketball = player.Character:FindFirstChild("Basketball")
+local shootEvent = basketball["shoot_event"]
+local target, firePos = getClosestTarget(), nil
+firePos = calculatePosition(target)
+local fireDir = (firePos - player.Character.Head.Position).Unit
+
+local finalPos = player.Character.PrimaryPart.Position + fireDir * 3.8
+if finalPos.Y - player.Character.PrimaryPart.Position.Y < 4 then
+finalPos = player.Character.PrimaryPart.Position + fireDir * 4
+end
+shootEvent:FireServer(firePos, finalPos, "\240\159\148\165\240\159\148\165")
+end
+
+local function adjustPower(targetPower)
+while wait() do
+if not player.Character or not player.Character:FindFirstChild("Basketball") or not getgenv().AutoPower then break end
+local currentPower = tonumber(powerGui.Text)
+if currentPower ~= targetPower then
+addPower:FireServer(currentPower < targetPower and 5 or -5)
+wait(0.2)
+else
+break
+end
+end
+end
+
+local function handleJump()
+if player.Character:FindFirstChildOfClass("Tool") then
+task.wait((player.Character.Torso.Position - getClosestTarget().Position).Magnitude >= 70 and 0.24 or 0.225)
+shoot()
+end
+end
+
+local function handleRender()
+local target, currentPower, targetDist = getClosestTarget(), tonumber(powerGui.Text), nil
+targetDist = (player.Character.Torso.Position - target.Position).Magnitude
+local distanceFloor = math.floor(targetDist)
+
+if distanceFloor == 57 and currentPower ~= 75 then
+adjustPower(75)
+elseif distanceFloor == 64 and currentPower ~= 80 then
+adjustPower(80)
+elseif distanceFloor == 70 and currentPower ~= 85 then
+adjustPower(85)
+elseif distanceFloor == 76 and currentPower ~= 90 then
+adjustPower(90)
+end
+end
+
+getgenv().HandleJump = player.Character.Humanoid.Jumping:Connect(handleJump)
+getgenv().HandleRender = runService.Stepped:Connect(handleRender)
+player.CharacterAdded:Connect(function(newChar)
+player.Character = newChar
+powerGui = player:WaitForChild("PlayerGui", 9e9).Power.PowerFrame.Power
+addPower = newChar:WaitForChild("AddPower")
+
+pcall(function()
+getgenv().HandleJump:Disconnect()
+getgenv().HandleRender:Disconnect()
+end)
+
+getgenv().HandleJump = newChar:WaitForChild("Humanoid").Jumping:Connect(handleJump)
+getgenv().HandleRender = runService.Stepped:Connect(handleRender)
+end)
