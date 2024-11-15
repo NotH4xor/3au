@@ -1,0 +1,118 @@
+local a, b = game.Players.LocalPlayer, game:GetService("RunService")
+local c = a:WaitForChild("PlayerGui", 9e9).Power.PowerFrame.Power
+local d = a.Character.E_V.AddPower
+local e, f, g = "75", {}, nil
+local canShoot = true  
+
+for h, i in ipairs(workspace:GetDescendants()) do
+if i:IsA("BasePart") and i.Name == "Lol" and i.Parent.Name == "Rim" then
+f[#f + 1] = i
+end
+end
+
+local j = tick()
+local function k()
+if tick() - j > 0.5 then
+local l, m = nil, math.huge
+local n = a.Character.Torso.Position
+for h, o in ipairs(f) do
+local p = (n - o.Position).Magnitude
+if p < m then
+l, m = o, p
+end
+end
+g = l
+j = tick()
+end
+return g
+end
+
+local function q(p)
+local r = { ["75"] = 5.61, ["80"] = 4.22, ["85"] = 5.64, ["90"] = 5.05 }
+return Vector3.new(0, 43 + math.clamp(p / 15, r[e] - 0.05, r[e]), 0)
+end
+
+local s = tick()
+local t = Vector3.new()
+local function u(o)
+if tick() - s > 0.1 then
+t = Vector3.new(a.Character.Humanoid.MoveDirection.X * 1.5, 0, a.Character.Humanoid.MoveDirection.Z * 1.5)
+s = tick()
+end
+local v = (a.Character.Torso.Position - o.Position).Magnitude
+return o.Position + q(v) - t
+end
+
+local function w()
+if canShoot then  
+local x = a.Character:FindFirstChild("Basketball")
+local y = x["shoot_event"]
+local o, z = k(), nil
+z = u(o)
+local A = (z - a.Character.Head.Position).Unit
+local B = a.Character.PrimaryPart.Position + A * 3.8
+if B.Y - a.Character.PrimaryPart.Position.Y < 4 then
+B = a.Character.PrimaryPart.Position + A * 4
+end
+y:FireServer(z, B, "\240\159\148\165\240\159\148\165")
+end
+end
+
+local function C(D)
+while wait() do
+if not a.Character or not a.Character:FindFirstChild("Basketball") or not getgenv().AutoPower then
+break
+end
+local E = tonumber(c.Text)
+if E ~= D then
+d:FireServer(E < D and 5 or -5)
+wait(0.2)
+else
+break
+end
+end
+end
+
+local function F()
+if a.Character:FindFirstChildOfClass("Tool") and canShoot then  
+task.wait((a.Character.Torso.Position - k().Position).Magnitude >= 70 and 0.24 or 0.225)
+w()
+end
+end
+
+local function G()
+local o, E, v = k(), tonumber(c.Text), nil
+v = (a.Character.Torso.Position - o.Position).Magnitude
+local H = math.floor(v)
+if H == 57 and E ~= 75 then
+C(75)
+elseif H == 64 and E ~= 80 then
+C(80)
+elseif H == 70 and E ~= 85 then
+C(85)
+elseif H == 76 and E ~= 90 then
+C(90)
+end
+end
+
+getgenv().HandleJump = a.Character.Humanoid.Jumping:Connect(F)
+getgenv().HandleRender = b.Stepped:Connect(G)
+a.CharacterAdded:Connect(function(I)
+a.Character = I
+c = a:WaitForChild("PlayerGui", 9e9).Power.PowerFrame.Power
+d = I:WaitForChild("AddPower")
+pcall(function()
+getgenv().HandleJump:Disconnect()
+getgenv().HandleRender:Disconnect()
+end)
+getgenv().HandleJump = I:WaitForChild("Humanoid").Jumping:Connect(F)
+getgenv().HandleRender = b.Stepped:Connect(G)
+end)
+
+a.Character.ChildAdded:Connect(function(child)
+if child:IsA("Tool") and child.Name == "Basketball" then
+canShoot = false  
+task.wait(1)  
+canShoot = true  
+end
+end)
