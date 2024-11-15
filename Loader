@@ -1,8 +1,6 @@
 local scripts = {
-    'https://raw.githubusercontent.com/NotH4xor/3au/main/75Line',
-    'https://raw.githubusercontent.com/NotH4xor/3au/main/80Line',
-    'https://raw.githubusercontent.com/NotH4xor/3au/main/85Line',
-    'https://raw.githubusercontent.com/NotH4xor/3au/main/All%20power%20aimbot',
+    'https://raw.githubusercontent.com/NotH4xor/3au/main/Aimbot',
+    'https://raw.githubusercontent.com/NotH4xor/3au/main/Guidelines',
     'https://raw.githubusercontent.com/NotH4xor/3au/main/Autoguard',
 }
 for _, url in ipairs(scripts) do
