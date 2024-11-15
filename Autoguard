@@ -1,0 +1,100 @@
+local isFollowing = false
+local hasBall = false
+local Mouse = game.Players.LocalPlayer:GetMouse()
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+
+-- Create Notify Module
+local NotifyGui = Instance.new("ScreenGui")
+local Template = Instance.new("TextLabel")
+
+NotifyGui.Name = "Notification"
+NotifyGui.Parent = CoreGui
+
+Template.Name = "Template"
+Template.Parent = NotifyGui
+Template.AnchorPoint = Vector2.new(.5, .5)
+Template.BackgroundTransparency = 1
+Template.BorderSizePixel = 0
+Template.Position = UDim2.new(.5, 0, .5, 0)
+Template.Size = UDim2.new(.3, 0, .1, 0)
+Template.Font = Enum.Font.Code
+Template.Text = ""
+Template.TextSize = 30
+Template.TextWrapped = true
+
+local currentNotification
+
+local function showToggleMessage(message, color)
+    if currentNotification then
+        currentNotification:Destroy()
+    end
+
+    currentNotification = Template:Clone()
+    currentNotification.Text = message
+    currentNotification.TextColor3 = color
+    currentNotification.Parent = NotifyGui
+
+    task.delay(2, function()
+        if currentNotification then
+            currentNotification:Destroy()
+            currentNotification = nil
+        end
+    end)
+end
+
+local function getClosestPlayer(character)
+    local closestPlayer, minDistance = nil, math.huge
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= Players.LocalPlayer and player.Character and player.Character:FindFirstChild("Head") and player.Character.PrimaryPart then
+            local distance = (player.Character.PrimaryPart.Position - character.PrimaryPart.Position).Magnitude
+            if distance < minDistance then
+                minDistance = distance
+                closestPlayer = player
+            end
+        end
+    end
+    return closestPlayer, minDistance
+end
+
+local function followClosestPlayer(character)
+    while isFollowing do
+        local closestPlayer, minDistance = getClosestPlayer(character)
+        if closestPlayer and minDistance < 25 then
+            local targetPosition = closestPlayer.Character.PrimaryPart.Position
+            if closestPlayer.Character.PrimaryPart.AssemblyLinearVelocity.Magnitude > 0.5 then
+                targetPosition = targetPosition + closestPlayer.Character.PrimaryPart.AssemblyLinearVelocity.Unit * 7
+            end
+            character.Humanoid:MoveTo(targetPosition)
+        end
+        RunService.Heartbeat:Wait() -- Use Heartbeat for smooth frame updates
+    end
+end
+
+local function checkForBall()
+    local character = Players.LocalPlayer.Character
+    if character and character:FindFirstChild("Basketball") then
+        hasBall = true
+        isFollowing = false
+        showToggleMessage("Follow OFF (Ball detected)", Color3.fromRGB(255, 25, 25)) -- red
+    else
+        hasBall = false
+    end
+end
+
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if input.KeyCode == Enum.KeyCode.G and not gpe then
+        isFollowing = not isFollowing
+        local character = Players.LocalPlayer.Character
+        if isFollowing and character then
+            followClosestPlayer(character)
+            showToggleMessage("Follow OFF", Color3.fromRGB(255, 25, 25)) -- red
+        else
+            showToggleMessage("Follow ON", Color3.fromRGB(25, 255, 25)) -- green
+        end
+    end
+end)
+
+RunService.Heartbeat:Connect(checkForBall)
