@@ -1,0 +1,101 @@
+local a={}
+local b={}
+
+local function c()
+    if #a>0 then
+        return table.remove(a)
+    else
+        local d=Instance.new("Attachment")
+        return d 
+    end 
+end
+
+local function e(lineWidth)
+    if #b>0 then 
+        local f=table.remove(b)
+        f.Enabled=true
+        f.Width0 = lineWidth
+        f.Width1 = lineWidth
+        return f 
+    else 
+        local f=Instance.new("Beam")
+        f.Width0 = lineWidth
+        f.Width1 = lineWidth
+        f.FaceCamera = true
+        f.Color = ColorSequence.new(BrickColor.new("1, 1, 1").Color)
+        f.Transparency = NumberSequence.new(0)
+        return f 
+    end 
+end
+
+local function g(h, i, j, lineWidth)
+    local k = Instance.new("Model")
+    k.Name = "Ring"
+    k.Parent = workspace
+
+    local l = Instance.new("Part")
+    l.Size = Vector3.new(1, 1, 1)
+    l.Anchored = true
+    l.CanCollide = false
+    l.Transparency = 1
+    l.Position = h.Position + Vector3.new(0, j, 0)
+    l.Parent = k
+
+    local m = {}
+    local increment = 360 / 2
+
+    for o = 0, 360, 2 do
+        local p = math.rad(o)
+        local q = i * math.cos(p)
+        local r = i * math.sin(p)
+        local d = c()
+        d.Position = Vector3.new(q, 0, r)
+        d.Parent = l
+        table.insert(m, d)
+    end
+
+    for s = 1, #m do
+        local t = (s == #m) and 1 or (s + 1)
+        local f = e(lineWidth)
+        f.Attachment0 = m[s]
+        f.Attachment1 = m[t]
+        f.Parent = l
+    end
+
+    return k
+end
+
+local function u(i, j, lineWidth)
+    local v = {}
+    for w, h in pairs(workspace:GetDescendants()) do
+        if h.Name == 'Lol' and h:IsA('Part') then
+            table.insert(v, h)
+        end
+    end
+
+    for w, h in pairs(v) do
+        g(h, i, j, lineWidth)
+    end
+end
+
+local function x()
+    for w, f in pairs(workspace:GetDescendants()) do
+        if f:IsA("Beam") and f.Enabled == false then
+            table.insert(b, f)
+        end
+    end
+
+    for w, d in pairs(workspace:GetDescendants()) do
+        if d:IsA("Attachment") and not d.Parent:IsDescendantOf(workspace) then
+            table.insert(a, d)
+        end
+    end
+end
+
+-- customize these values:
+local i = 68.20
+local j = -17
+local lineWidth = 0.7 -- update this value to change the thickness
+
+u(i, j, lineWidth)
+x()
