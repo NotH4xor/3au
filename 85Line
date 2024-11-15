@@ -97,7 +97,7 @@ end
 
 local j = 68.20
 local k = -17
-local f = 0.7
+local f = 0.2
 
 v(j, k, f)
 y()
