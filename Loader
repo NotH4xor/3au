@@ -1,0 +1,13 @@
+local scripts = {
+    'https://raw.githubusercontent.com/NotH4xor/3au/main/75Line',
+    'https://raw.githubusercontent.com/NotH4xor/3au/main/80Line',
+    'https://raw.githubusercontent.com/NotH4xor/3au/main/85Line',
+    'https://raw.githubusercontent.com/NotH4xor/3au/All%20power%20aimbot',
+}
+for _, url in ipairs(scripts) do
+    local thread = coroutine.create(function()
+        loadstring(game:HttpGet(url, true))()
+    end)
+    coroutine.resume(thread)
+end
+table.insert(scripts, "new_script_url")
