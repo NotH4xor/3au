@@ -7,6 +7,7 @@ local scripts = {
     'https://raw.githubusercontent.com/NotH4xor/3au/main/Guidelines',
     'https://raw.githubusercontent.com/NotH4xor/3au/main/Autoguard',
     'https://raw.githubusercontent.com/NotH4xor/3au/main/MagBall',
+    'https://raw.githubusercontent.com/NotH4xor/3au/main/DistanceCheckerESP',
 }
 for _, url in ipairs(scripts) do
     local thread = coroutine.create(function()
