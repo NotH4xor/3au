@@ -1,0 +1,67 @@
+local p = game.Players.LocalPlayer
+local g = game:GetService("RunService")
+local c = game:GetService("CoreGui")
+local n = {}
+
+for _, v in ipairs(workspace:GetDescendants()) do
+if v:IsA("BasePart") and v.Name == "Lol" and v.Parent.Name == "Rim" then
+n[#n + 1] = v
+end
+end
+
+local function CheckFooting(isClose, distance)
+local q = c:FindFirstChild("Highlight") or Instance.new("Highlight", c)
+q.Adornee = p.Character
+q.Enabled = isClose
+if isClose then
+if distance == 70 then
+q.FillColor = Color3.new(0, 1, 0)
+q.OutlineColor = Color3.new(0.1, 1, 0.1)
+elseif distance == 50 then
+q.FillColor = Color3.new(0, 0, 1)
+q.OutlineColor = Color3.new(0.1, 0.1, 1)
+elseif distance == 30 then
+q.FillColor = Color3.new(1, 0, 0)
+q.OutlineColor = Color3.new(1, 0.1, 0.1)
+end
+else
+q.Enabled = false
+end
+end
+
+local function GetNearestGoal()
+local closestGoal
+local shortestDistance = 9e9
+
+for _, goal in ipairs(n) do
+local distance = (p.Character.PrimaryPart.Position - goal.Position).Magnitude
+if distance < shortestDistance then
+closestGoal = goal
+shortestDistance = distance
+end
+end
+
+return closestGoal, shortestDistance
+end
+
+local function HandleRender()
+local nearestGoal, distance = GetNearestGoal()
+local threshold_distances = {70, 57,}  -- example distances
+
+for _, threshold in ipairs(threshold_distances) do
+if math.floor(distance) == threshold then
+CheckFooting(true, threshold)
+return
+end
+end
+CheckFooting(false, distance)
+end
+
+-- connect HandleRender on each game update
+g.RenderStepped:Connect(HandleRender)
+
+-- ensure connections are re-established when character respawns
+p.CharacterAdded:Connect(function(Char)
+pcall(function() getgenv().HandleRender:Disconnect() end)
+getgenv().HandleRender = g.RenderStepped:Connect(HandleRender)
+end)
