@@ -111,3 +111,118 @@ local beamSize = 0.2
 
 createRings(radius, height, beamSize)
 cleanup()
+
+
+local pool = {
+attachments = {},
+beams = {}
+}
+
+local defaultColor = Color3.fromRGB(255, 0, 255)
+local defaultTransparency = 0
+local radians = {}
+for angle = 0, 360 do
+radians[angle] = math.rad(angle)
+end
+
+-- get or create an attachment
+local function getAttachment()
+if #pool.attachments > 0 then
+return table.remove(pool.attachments)
+else
+return Instance.new("Attachment")
+end
+end
+
+-- get or create a beam
+local function getBeam(size)
+if #pool.beams > 0 then
+local beam = table.remove(pool.beams)
+beam.Enabled = true
+beam.Width0 = size
+beam.Width1 = size
+return beam
+else
+local beam = Instance.new("Beam")
+beam.Width0 = size
+beam.Width1 = size
+beam.FaceCamera = true
+beam.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, defaultColor), ColorSequenceKeypoint.new(1, defaultColor)})
+beam.Transparency = NumberSequence.new(defaultTransparency)
+return beam
+end
+end
+
+-- create ring
+local function createRing(center, radius, height, beamSize)
+local n = Instance.new("Model")
+n.Name = "Ring"
+n.Parent = workspace
+
+local basePart = Instance.new("Part")
+basePart.Size = Vector3.new(1, 1, 1)
+basePart.Anchored = true
+basePart.CanCollide = false
+basePart.Transparency = 1
+basePart.Position = center.Position + Vector3.new(0, height, 0)
+basePart.Parent = n
+
+local attachments = {}
+for angle = 0, 360, 2 do
+local rad = radians[angle]
+local x = radius * math.cos(rad)
+local z = radius * math.sin(rad)
+local attachment = getAttachment()
+attachment.Position = Vector3.new(x, 0, z)
+attachment.Parent = basePart
+table.insert(attachments, attachment)
+end
+
+local numAttachments = #attachments
+for i = 1, numAttachments do
+local nextIndex = (i == numAttachments) and 1 or (i + 1)
+local beam = getBeam(beamSize)
+beam.Attachment0 = attachments[i]
+beam.Attachment1 = attachments[nextIndex]
+beam.Parent = basePart
+end
+
+return n
+end
+
+-- create rings
+local function createRings(radius, height, beamSize)
+local parts = {}
+for _, part in pairs(workspace:GetDescendants()) do
+if part.Name == "Lol" and part:IsA("Part") then
+table.insert(parts, part)
+end
+end
+
+for _, part in pairs(parts) do
+createRing(part, radius, height, beamSize)
+end
+end
+
+-- collect unused beams and attachments
+local function cleanup()
+for _, beam in pairs(workspace:GetDescendants()) do
+if beam:IsA("Beam") and not beam.Enabled then
+table.insert(pool.beams, beam)
+end
+end
+
+for _, attachment in pairs(workspace:GetDescendants()) do
+if attachment:IsA("Attachment") and not attachment.Parent:IsDescendantOf(workspace) then
+table.insert(pool.attachments, attachment)
+end
+end
+end
+
+-- settings
+local radius = 55
+local height = -17
+local beamSize = 0.2
+
+createRings(radius, height, beamSize)
+cleanup()
