@@ -1,44 +1,113 @@
-local function createRingAroundGoal(goal, radius, segments, heightFromGoal, thickness, color)
-local parts = {}
-local arcLength = (2 * math.pi * radius) / segments
-
-for i = 1, segments do
-local part = Instance.new("Part")
-part.Size = Vector3.new(arcLength, thickness, 0.2)
-part.Anchored = true
-part.CanCollide = false
-part.Transparency = 0.3
-part.BrickColor = BrickColor.new(color)
-part.Parent = workspace
-
-local angle = (i / segments) * (2 * math.pi)
-part.Position = goal.Position + Vector3.new(radius * math.cos(angle), heightFromGoal, radius * math.sin(angle))
-part.Orientation = Vector3.new(0, -math.deg(angle), 0)
-table.insert(parts, part)
-end
-
-return parts
-end
-
-local function findAndEncircleGoals(goalName, ringProperties)
-for _, goal in pairs(game.Workspace:GetDescendants()) do
-if goal.Name == goalName and goal:IsA('Part') then
-for _, props in ipairs(ringProperties) do
-createRingAroundGoal(goal, props[1], props[2], props[3], props[4], props[5])
-end
-end
-end
-end
-
--- goal name to encircle
-local goalName = 'Lol'
-
--- custom ring properties for each circle: {radius, segments, heightFromGoal, thickness, color}
-local ringProperties = {
-{55, 1600, -17, 0.3, "Bright red"},
-{62, 1600, -17, 0.3, "Bright red"},
-{68.20, 1600, -17, 0.3, "Bright red"},
--- add more configurations as needed
+local pool = {
+attachments = {},
+beams = {}
 }
 
-findAndEncircleGoals(goalName, ringProperties)
+local defaultColor = Color3.fromRGB(255, 0, 255)
+local defaultTransparency = 0
+local radians = {}
+for angle = 0, 360 do
+radians[angle] = math.rad(angle)
+end
+
+-- get or create an attachment
+local function getAttachment()
+if #pool.attachments > 0 then
+return table.remove(pool.attachments)
+else
+return Instance.new("Attachment")
+end
+end
+
+-- get or create a beam
+local function getBeam(size)
+if #pool.beams > 0 then
+local beam = table.remove(pool.beams)
+beam.Enabled = true
+beam.Width0 = size
+beam.Width1 = size
+return beam
+else
+local beam = Instance.new("Beam")
+beam.Width0 = size
+beam.Width1 = size
+beam.FaceCamera = true
+beam.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, defaultColor), ColorSequenceKeypoint.new(1, defaultColor)})
+beam.Transparency = NumberSequence.new(defaultTransparency)
+return beam
+end
+end
+
+-- create ring
+local function createRing(center, radius, height, beamSize)
+local n = Instance.new("Model")
+n.Name = "Ring"
+n.Parent = workspace
+
+local basePart = Instance.new("Part")
+basePart.Size = Vector3.new(1, 1, 1)
+basePart.Anchored = true
+basePart.CanCollide = false
+basePart.Transparency = 1
+basePart.Position = center.Position + Vector3.new(0, height, 0)
+basePart.Parent = n
+
+local attachments = {}
+for angle = 0, 360, 2 do
+local rad = radians[angle]
+local x = radius * math.cos(rad)
+local z = radius * math.sin(rad)
+local attachment = getAttachment()
+attachment.Position = Vector3.new(x, 0, z)
+attachment.Parent = basePart
+table.insert(attachments, attachment)
+end
+
+local numAttachments = #attachments
+for i = 1, numAttachments do
+local nextIndex = (i == numAttachments) and 1 or (i + 1)
+local beam = getBeam(beamSize)
+beam.Attachment0 = attachments[i]
+beam.Attachment1 = attachments[nextIndex]
+beam.Parent = basePart
+end
+
+return n
+end
+
+-- create rings
+local function createRings(radius, height, beamSize)
+local parts = {}
+for _, part in pairs(workspace:GetDescendants()) do
+if part.Name == "Lol" and part:IsA("Part") then
+table.insert(parts, part)
+end
+end
+
+for _, part in pairs(parts) do
+createRing(part, radius, height, beamSize)
+end
+end
+
+-- collect unused beams and attachments
+local function cleanup()
+for _, beam in pairs(workspace:GetDescendants()) do
+if beam:IsA("Beam") and not beam.Enabled then
+table.insert(pool.beams, beam)
+end
+end
+
+for _, attachment in pairs(workspace:GetDescendants()) do
+if attachment:IsA("Attachment") and not attachment.Parent:IsDescendantOf(workspace) then
+table.insert(pool.attachments, attachment)
+end
+end
+end
+
+-- settings
+local radius = 68.20
+local height = -17
+local beamSize = 0.2
+
+createRings(radius, height, beamSize)
+cleanup()
