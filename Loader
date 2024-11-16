@@ -1,3 +1,7 @@
+--[[
+Latest Update: Combined AutoGuard and MagBall to F keybind.
+]]
+
 local scripts = {
     'https://raw.githubusercontent.com/NotH4xor/3au/main/Aimbot',
     'https://raw.githubusercontent.com/NotH4xor/3au/main/Guidelines',
