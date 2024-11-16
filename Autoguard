@@ -85,7 +85,7 @@ local function checkForBall()
 end
 
 UserInputService.InputBegan:Connect(function(input, gpe)
-    if input.KeyCode == Enum.KeyCode.G and not gpe then
+    if input.KeyCode == Enum.KeyCode.F and not gpe then
         isFollowing = not isFollowing
         local character = Players.LocalPlayer.Character
         if isFollowing and character then
