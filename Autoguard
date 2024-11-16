@@ -78,7 +78,7 @@ local function checkForBall()
     if character and character:FindFirstChild("Basketball") then
         hasBall = true
         isFollowing = false
-        showToggleMessage(" OFF ", Color3.fromRGB(255, 25, 25)) -- Removed Text to not confused MagBall
+        showToggleMessage(" ", Color3.fromRGB(255, 25, 25)) -- Removed Text to not confused MagBall
     else
         hasBall = false
     end
@@ -90,9 +90,9 @@ UserInputService.InputBegan:Connect(function(input, gpe)
         local character = Players.LocalPlayer.Character
         if isFollowing and character then
             followClosestPlayer(character)
-            showToggleMessage("Follow OFF", Color3.fromRGB(255, 25, 25)) -- red
+            showToggleMessage(" ", Color3.fromRGB(255, 25, 25)) -- Removed Text
         else
-            showToggleMessage("Follow ON", Color3.fromRGB(25, 255, 25)) -- green
+            showToggleMessage(" ", Color3.fromRGB(25, 255, 25)) -- Removed Text
         end
     end
 end)
