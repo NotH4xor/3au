@@ -105,7 +105,7 @@ end
 end
 
 -- settings
-local radius = 68.20
+local radius = 69.20
 local height = -17
 local beamSize = 0.2
 
@@ -220,7 +220,7 @@ end
 end
 
 -- settings
-local radius = 55
+local radius = 55.85
 local height = -17
 local beamSize = 0.2
 
