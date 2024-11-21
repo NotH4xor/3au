@@ -78,7 +78,7 @@ local function checkForBall()
     if character and character:FindFirstChild("Basketball") then
         hasBall = true
         isFollowing = false
-        showToggleMessage(" Autoguard Off ", Color3.fromRGB(255, 25, 25)) -- Removed Text to not confused MagBall
+        showToggleMessage("Follow OFF (Ball detected)", Color3.fromRGB(255, 25, 25)) -- red
     else
         hasBall = false
     end
