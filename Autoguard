@@ -78,21 +78,21 @@ local function checkForBall()
     if character and character:FindFirstChild("Basketball") then
         hasBall = true
         isFollowing = false
-        showToggleMessage(" ", Color3.fromRGB(255, 25, 25)) -- Removed Text to not confused MagBall
+        showToggleMessage(" Autoguard Off ", Color3.fromRGB(255, 25, 25)) -- Removed Text to not confused MagBall
     else
         hasBall = false
     end
 end
 
 UserInputService.InputBegan:Connect(function(input, gpe)
-    if input.KeyCode == Enum.KeyCode.F and not gpe then
+    if input.KeyCode == Enum.KeyCode.G and not gpe then
         isFollowing = not isFollowing
         local character = Players.LocalPlayer.Character
         if isFollowing and character then
             followClosestPlayer(character)
-            showToggleMessage(" ", Color3.fromRGB(255, 25, 25)) -- Removed Text
+            showToggleMessage("Follow OFF", Color3.fromRGB(255, 25, 25)) -- red
         else
-            showToggleMessage(" ", Color3.fromRGB(25, 255, 25)) -- Removed Text
+            showToggleMessage("Follow ON", Color3.fromRGB(25, 255, 25)) -- green
         end
     end
 end)
